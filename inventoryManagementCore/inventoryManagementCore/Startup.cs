@@ -11,6 +11,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
+using inventoryManagementCore.Services.InventoryService;
+
 namespace inventoryManagementCore
 {
     public class Startup
@@ -26,6 +28,10 @@ namespace inventoryManagementCore
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers();
+
+            services.AddAutoMapper(typeof(Startup));
+
+            services.AddScoped<IInventoryService, InventoryService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
