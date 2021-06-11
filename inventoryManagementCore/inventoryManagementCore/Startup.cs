@@ -12,6 +12,8 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
 using inventoryManagementCore.Services.InventoryService;
+using inventoryManagementCore.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace inventoryManagementCore
 {
@@ -27,6 +29,9 @@ namespace inventoryManagementCore
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddDbContext<DataContext>(options =>
+            options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
+
             services.AddControllers();
 
             services.AddAutoMapper(typeof(Startup));

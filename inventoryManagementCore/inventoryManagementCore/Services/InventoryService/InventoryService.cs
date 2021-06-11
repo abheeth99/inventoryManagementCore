@@ -6,35 +6,37 @@ using System.Threading.Tasks;
 
 using inventoryManagementCore.Dtos.Inventory;
 using AutoMapper;
+using inventoryManagementCore.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace inventoryManagementCore.Services.InventoryService
 {
     public class InventoryService : IInventoryService
     {
-        // Mocked inventory to set up basic CRUD
-        private static List<Inventory> inventories = new List<Inventory> {
-            new Inventory() { Id = 1, Name = "First" },
-            new Inventory() { Id = 2, Name = "Second" }
-        };
-
         private readonly IMapper _mapper;
+        private readonly DataContext _context;
 
-        public InventoryService(IMapper mapper)
+        public InventoryService(IMapper mapper, DataContext context)
         {
             _mapper = mapper;
+            _context = context;
         }
 
         public async Task<ServiceResponse<List<GetInventoryDto>>> GetAllInventories()
         {
             var serviceResponse = new ServiceResponse<List<GetInventoryDto>>();
-            serviceResponse.Data = inventories.Select(i => _mapper.Map<GetInventoryDto>(i)).ToList();
+            var dbInventories = await _context.Inventories.ToListAsync();
+
+            serviceResponse.Data = dbInventories.Select(i => _mapper.Map<GetInventoryDto>(i)).ToList();
             return serviceResponse;
         }
 
         public async Task<ServiceResponse<GetInventoryDto>> GetInventoryById(int id)
         {
             var serviceResponse = new ServiceResponse<GetInventoryDto>();
-            serviceResponse.Data = _mapper.Map<GetInventoryDto>(inventories.FirstOrDefault(i => i.Id == id));
+            var dbInventories = await _context.Inventories.FirstOrDefaultAsync(i => i.Id == id);
+
+            serviceResponse.Data = _mapper.Map<GetInventoryDto>(dbInventories);
             return serviceResponse;
         }
 
@@ -43,11 +45,10 @@ namespace inventoryManagementCore.Services.InventoryService
             var serviceResponse = new ServiceResponse<List<GetInventoryDto>>();
 
             Inventory inventory = _mapper.Map<Inventory>(newInventory);
-            inventory.Id = inventories.Max(i => i.Id) + 1;
+            _context.Inventories.Add(inventory);
+            await _context.SaveChangesAsync();
 
-            inventories.Add(inventory);
-
-            serviceResponse.Data = inventories.Select(i => _mapper.Map<GetInventoryDto>(i)).ToList();
+            serviceResponse.Data = await _context.Inventories.Select(i => _mapper.Map<GetInventoryDto>(i)).ToListAsync();
 
             return serviceResponse;
         }
@@ -57,12 +58,14 @@ namespace inventoryManagementCore.Services.InventoryService
             var serviceResponse = new ServiceResponse<GetInventoryDto>();
             try
             {
-                Inventory inventory = inventories.FirstOrDefault(i => i.Id == updatedInventory.Id);
+                Inventory inventory = await _context.Inventories.FirstOrDefaultAsync(i => i.Id == updatedInventory.Id);
 
                 inventory.Name = updatedInventory.Name;
                 inventory.UnitsCount = updatedInventory.UnitsCount;
                 inventory.UnitPrice = updatedInventory.UnitPrice;
                 inventory.ReorderLevel = updatedInventory.ReorderLevel;
+
+                await _context.SaveChangesAsync();
 
                 serviceResponse.Data = _mapper.Map<GetInventoryDto>(inventory);
             }
@@ -79,10 +82,12 @@ namespace inventoryManagementCore.Services.InventoryService
             var serviceResponse = new ServiceResponse<List<GetInventoryDto>>();
             try
             {
-                Inventory inventory = inventories.First(i => i.Id == id);
-                inventories.Remove(inventory);
+                Inventory inventory = await _context.Inventories.FirstAsync(i => i.Id == id);
+                _context.Inventories.Remove(inventory);
 
-                serviceResponse.Data = inventories.Select(i => _mapper.Map<GetInventoryDto>(i)).ToList();
+                await _context.SaveChangesAsync();
+
+                serviceResponse.Data = _context.Inventories.Select(i => _mapper.Map<GetInventoryDto>(i)).ToList();
             }
             catch (Exception ex)
             {
