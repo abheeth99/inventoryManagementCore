@@ -37,6 +37,9 @@ namespace inventoryManagementCore
             services.AddAutoMapper(typeof(Startup));
 
             services.AddScoped<IInventoryService, InventoryService>();
+
+            services.AddCors(options => options.AddDefaultPolicy(
+                builder => builder.AllowAnyOrigin()));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -50,6 +53,8 @@ namespace inventoryManagementCore
             app.UseHttpsRedirection();
 
             app.UseRouting();
+
+            app.UseCors();
 
             app.UseAuthorization();
 
