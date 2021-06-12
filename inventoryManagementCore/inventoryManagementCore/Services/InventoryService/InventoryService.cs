@@ -28,6 +28,7 @@ namespace inventoryManagementCore.Services.InventoryService
             var dbInventories = await _context.Inventories.ToListAsync();
 
             serviceResponse.Data = dbInventories.Select(i => _mapper.Map<GetInventoryDto>(i)).ToList();
+
             return serviceResponse;
         }
 
