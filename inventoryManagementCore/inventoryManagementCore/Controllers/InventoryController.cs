@@ -8,9 +8,11 @@ using Microsoft.AspNetCore.Mvc;
 using inventoryManagementCore.Models;
 using inventoryManagementCore.Services.InventoryService;
 using inventoryManagementCore.Dtos.Inventory;
+using Microsoft.AspNetCore.Cors;
 
 namespace inventoryManagementCore.Controllers
 {
+    [EnableCors("CorsPolicy")]
     [Route("[controller]")]
     [ApiController]
     public class InventoryController : ControllerBase

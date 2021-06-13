@@ -32,14 +32,20 @@ namespace inventoryManagementCore
             services.AddDbContext<DataContext>(options =>
             options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
 
-            services.AddControllers();
+            services.AddControllers().AddNewtonsoftJson();
 
             services.AddAutoMapper(typeof(Startup));
 
             services.AddScoped<IInventoryService, InventoryService>();
 
-            services.AddCors(options => options.AddDefaultPolicy(
-                builder => builder.AllowAnyOrigin()));
+            // Add service and create Policy with options
+            services.AddCors(options =>
+            {
+                options.AddPolicy("CorsPolicy",
+                    builder => builder.AllowAnyOrigin()
+                    .AllowAnyMethod()
+                    .AllowAnyHeader());
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -50,13 +56,11 @@ namespace inventoryManagementCore
                 app.UseDeveloperExceptionPage();
             }
 
-            app.UseHttpsRedirection();
-
             app.UseRouting();
 
-            app.UseCors(builder =>
-                    builder.WithOrigins("http://localhost:3000")
-                    .WithMethods("GET", "POST", "PUT", "DELETE"));
+            app.UseCors("CorsPolicy");
+
+            app.UseHttpsRedirection();
 
             app.UseAuthorization();
 
