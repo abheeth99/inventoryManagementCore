@@ -70,7 +70,7 @@ namespace inventoryManagementCore.Controllers
         [HttpPost("PushNotification")]
         public ActionResult PushNotificationAsync(FireBaseNotification notification)
         {
-            _messagingClient.SendNotification(notification.DeviceToken, notification.Title, notification.Body);
+            _messagingClient.SendNotification(notification);
             return Ok();
         }
 

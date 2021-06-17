@@ -1,6 +1,7 @@
 ﻿using FirebaseAdmin;
 using FirebaseAdmin.Messaging;
 using Google.Apis.Auth.OAuth2;
+using inventoryManagementCore.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,23 +19,29 @@ namespace inventoryManagementCore.Services.Firebase
             _messaging = FirebaseMessaging.GetMessaging(app);
         }
 
-        private Message CreateNotification(string title, string notificationBody, string token)
+        private Message CreateNotification(FireBaseNotification notification)
         {
+
             return new Message()
             {
-                Token = token,
+                Token = notification.DeviceToken,
+                Data = new Dictionary<string, string>()
+                {
+                    {"Id", "01"}
+                },
                 Notification = new Notification()
                 {
-                    Body = notificationBody,
-                    Title = title
-                }
+                    Body = notification.Body,
+                    Title = notification.Title
+                },
+
             };
         }
 
-        public async Task SendNotification(string token, string title, string body)
+        public async Task SendNotification(FireBaseNotification notification)
         {
             MobileMessagingClient();
-            var result = await _messaging.SendAsync(CreateNotification(title, body, token));
+            var result = await _messaging.SendAsync(CreateNotification(notification));
 
         }
     }
