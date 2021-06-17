@@ -2,6 +2,7 @@
 using FirebaseAdmin.Messaging;
 using Google.Apis.Auth.OAuth2;
 using inventoryManagementCore.Models;
+using inventoryManagementCore.Services.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,16 +13,18 @@ namespace inventoryManagementCore.Services.Firebase
     public class MessagingClient : IMessagingClient
     {
         private FirebaseMessaging _messaging;
+        private readonly IUtilities _utilities;
+        private FirebaseApp firebaseApp;
 
-        public MessagingClient()
+        public MessagingClient(IUtilities utilities)
         {
-            MobileMessagingClient();
+            _utilities = utilities;
         }
 
         private void MobileMessagingClient()
         {
-            var app = FirebaseApp.Create(new AppOptions() { Credential = GoogleCredential.FromFile("key.json") });
-            _messaging = FirebaseMessaging.GetMessaging(app);
+            firebaseApp = FirebaseApp.Create(new AppOptions() { Credential = GoogleCredential.FromFile("key.json") });
+            _messaging = FirebaseMessaging.GetMessaging(firebaseApp);
         }
 
         private Message CreateNotification(FireBaseNotification notification)
@@ -44,8 +47,14 @@ namespace inventoryManagementCore.Services.Firebase
 
         public async Task SendNotification(FireBaseNotification notification)
         {
+            var token = _utilities.GetToken("Token");
+            notification.DeviceToken = await token;
+
+            MobileMessagingClient();
+
             var result = await _messaging.SendAsync(CreateNotification(notification));
 
+            firebaseApp.Delete();
         }
     }
 }

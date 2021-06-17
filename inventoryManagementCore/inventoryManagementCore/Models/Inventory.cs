@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using inventoryManagementCore.Utilities;
+using inventoryManagementCore.Utills;
 
 namespace inventoryManagementCore.Models
 {
@@ -19,6 +19,6 @@ namespace inventoryManagementCore.Models
         public reorderLevel ReorderLevel { get; set; } = reorderLevel.low;
 
         // Navigation Properties
-        public List<InventoryLog> InventoriesLogs { get; set; }
+        public ICollection<InventoryLog> InventoriesLogs { get; set; }
     }
 }
