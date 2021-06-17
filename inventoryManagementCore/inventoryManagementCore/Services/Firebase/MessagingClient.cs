@@ -13,6 +13,11 @@ namespace inventoryManagementCore.Services.Firebase
     {
         private FirebaseMessaging _messaging;
 
+        public MessagingClient()
+        {
+            MobileMessagingClient();
+        }
+
         private void MobileMessagingClient()
         {
             var app = FirebaseApp.Create(new AppOptions() { Credential = GoogleCredential.FromFile("key.json") });
@@ -21,14 +26,13 @@ namespace inventoryManagementCore.Services.Firebase
 
         private Message CreateNotification(FireBaseNotification notification)
         {
+            var inventoryLog = new Dictionary<string, string>();
+            inventoryLog = notification.Data;
 
             return new Message()
             {
                 Token = notification.DeviceToken,
-                Data = new Dictionary<string, string>()
-                {
-                    {"Id", "01"}
-                },
+                Data = inventoryLog,
                 Notification = new Notification()
                 {
                     Body = notification.Body,
@@ -40,7 +44,6 @@ namespace inventoryManagementCore.Services.Firebase
 
         public async Task SendNotification(FireBaseNotification notification)
         {
-            MobileMessagingClient();
             var result = await _messaging.SendAsync(CreateNotification(notification));
 
         }

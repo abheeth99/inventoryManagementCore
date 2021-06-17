@@ -38,7 +38,7 @@ namespace inventoryManagementCore
             services.AddAutoMapper(typeof(Startup));
 
             services.AddScoped<IInventoryService, InventoryService>();
-            services.AddScoped<IMessagingClient, MessagingClient>();
+            services.AddSingleton<IMessagingClient, MessagingClient>();
 
             // Add service and create Policy with options
             services.AddCors(options =>

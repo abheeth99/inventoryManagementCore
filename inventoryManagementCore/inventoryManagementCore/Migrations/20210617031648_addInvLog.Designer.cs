@@ -2,15 +2,17 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using inventoryManagementCore.Data;
 
 namespace inventoryManagementCore.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20210617031648_addInvLog")]
+    partial class addInvLog
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -63,25 +65,7 @@ namespace inventoryManagementCore.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("InventoryId");
-
                     b.ToTable("InventoryLogs");
-                });
-
-            modelBuilder.Entity("inventoryManagementCore.Models.InventoryLog", b =>
-                {
-                    b.HasOne("inventoryManagementCore.Models.Inventory", "Inventory")
-                        .WithMany("InventoriesLogs")
-                        .HasForeignKey("InventoryId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Inventory");
-                });
-
-            modelBuilder.Entity("inventoryManagementCore.Models.Inventory", b =>
-                {
-                    b.Navigation("InventoriesLogs");
                 });
 #pragma warning restore 612, 618
         }

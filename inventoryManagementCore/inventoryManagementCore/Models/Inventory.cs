@@ -17,5 +17,8 @@ namespace inventoryManagementCore.Models
         public decimal UnitPrice { get; set; } = 0;
 
         public reorderLevel ReorderLevel { get; set; } = reorderLevel.low;
+
+        // Navigation Properties
+        public List<InventoryLog> InventoriesLogs { get; set; }
     }
 }

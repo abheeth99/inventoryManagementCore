@@ -8,6 +8,7 @@ using inventoryManagementCore.Dtos.Inventory;
 using AutoMapper;
 using inventoryManagementCore.Data;
 using Microsoft.EntityFrameworkCore;
+using inventoryManagementCore.Services.Firebase;
 
 namespace inventoryManagementCore.Services.InventoryService
 {
@@ -15,11 +16,13 @@ namespace inventoryManagementCore.Services.InventoryService
     {
         private readonly IMapper _mapper;
         private readonly DataContext _context;
+        private readonly IMessagingClient _messagingClient;
 
-        public InventoryService(IMapper mapper, DataContext context)
+        public InventoryService(IMapper mapper, DataContext context, IMessagingClient messagingClient)
         {
             _mapper = mapper;
             _context = context;
+            _messagingClient = messagingClient;
         }
 
         public async Task<ServiceResponse<List<GetInventoryDto>>> GetAllInventories()
@@ -45,9 +48,30 @@ namespace inventoryManagementCore.Services.InventoryService
         {
             var serviceResponse = new ServiceResponse<List<GetInventoryDto>>();
 
+
             Inventory inventory = _mapper.Map<Inventory>(newInventory);
             _context.Inventories.Add(inventory);
             await _context.SaveChangesAsync();
+
+            InventoryLog invLog = new InventoryLog();
+
+            invLog.InventoryId = inventory.Id;
+            invLog.ModifiedDate = DateTime.Now.ToString();
+            invLog.UpdatedBy = "Abheeth";
+            invLog.CreatedBy = "Abheeth";
+
+            _context.InventoryLogs.Add(invLog);
+            await _context.SaveChangesAsync();
+
+            FireBaseNotification notification = new FireBaseNotification();
+            notification.Title = "Inventory Added";
+            notification.Body = "A new inventory added";
+            notification.Data = new Dictionary<String, String>();
+            notification.Data.Add("InventoryLogId", invLog.Id.ToString());
+            notification.Data.Add("InventoryId", inventory.Id.ToString());
+            notification.Data.Add("InventoryName", inventory.Name);
+
+            await _messagingClient.SendNotification(notification);
 
             serviceResponse.Data = await _context.Inventories.Select(i => _mapper.Map<GetInventoryDto>(i)).ToListAsync();
 
