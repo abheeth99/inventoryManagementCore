@@ -45,9 +45,16 @@ namespace inventoryManagementCore.Services.Utilities
 
         public async Task<string> GetToken(string utilityName)
         {
-            var utilityWithToken = await _context.Utilities.FirstOrDefaultAsync(util => util.Name == utilityName);
+            try
+            {
+                var utilityWithToken = await _context.Utilities.FirstOrDefaultAsync(util => util.Name == utilityName);
+                return utilityWithToken.Value;
 
-            return utilityWithToken.Value;
+            }catch (Exception e)
+            {
+                return "";
+            }
+
         }
     }
 }

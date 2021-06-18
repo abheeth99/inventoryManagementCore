@@ -2,6 +2,7 @@
 using inventoryManagementCore.Models;
 using inventoryManagementCore.Services.Firebase;
 using inventoryManagementCore.Utills;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -23,6 +24,8 @@ namespace inventoryManagementCore.Services.InventoryService
 
         public async Task LogInventory(Inventory inventory, notificationAction action)
         {
+            string inventoryJson = JsonConvert.SerializeObject(inventory);
+
             InventoryLog invLog = new InventoryLog();
             invLog.InventoryId = inventory.Id;
             invLog.ModifiedDate = DateTime.Now.ToString();
@@ -36,9 +39,8 @@ namespace inventoryManagementCore.Services.InventoryService
             notification.Title = "Inventory " + action.ToString();
             notification.Body = "A new inventory " + action.ToString();
             notification.Data = new Dictionary<String, String>();
-            notification.Data.Add("InventoryLogId", invLog.Id.ToString());
-            notification.Data.Add("InventoryId", inventory.Id.ToString());
-            notification.Data.Add("InventoryName", inventory.Name);
+
+            notification.Data.Add("Inventory", inventoryJson);
 
             await _messagingClient.SendNotification(notification);
         }

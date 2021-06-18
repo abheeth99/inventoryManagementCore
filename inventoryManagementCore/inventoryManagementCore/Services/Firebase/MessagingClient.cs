@@ -29,13 +29,11 @@ namespace inventoryManagementCore.Services.Firebase
 
         private Message CreateNotification(FireBaseNotification notification)
         {
-            var inventoryLog = new Dictionary<string, string>();
-            inventoryLog = notification.Data;
 
             return new Message()
             {
                 Token = notification.DeviceToken,
-                Data = inventoryLog,
+                Data = notification.Data,
                 Notification = new Notification()
                 {
                     Body = notification.Body,
@@ -50,11 +48,13 @@ namespace inventoryManagementCore.Services.Firebase
             var token = _utilities.GetToken("Token");
             notification.DeviceToken = await token;
 
-            MobileMessagingClient();
+            if (notification.DeviceToken != "")
+            {
+                MobileMessagingClient();
+                var result = await _messaging.SendAsync(CreateNotification(notification));
 
-            var result = await _messaging.SendAsync(CreateNotification(notification));
-
-            firebaseApp.Delete();
+                firebaseApp.Delete();
+            }
         }
     }
 }
