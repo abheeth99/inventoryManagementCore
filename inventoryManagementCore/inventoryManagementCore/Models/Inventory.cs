@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using inventoryManagementCore.Utilities;
+using inventoryManagementCore.Utills;
 
 namespace inventoryManagementCore.Models
 {
@@ -17,5 +17,8 @@ namespace inventoryManagementCore.Models
         public decimal UnitPrice { get; set; } = 0;
 
         public reorderLevel ReorderLevel { get; set; } = reorderLevel.low;
+
+        // Navigation Properties
+        public ICollection<InventoryLog> InventoriesLogs { get; set; }
     }
 }

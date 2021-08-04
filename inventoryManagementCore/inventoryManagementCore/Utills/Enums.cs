@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 using System.Text.Json.Serialization;
 
-namespace inventoryManagementCore.Utilities
+namespace inventoryManagementCore.Utills
 {
     [JsonConverter(typeof(JsonStringEnumConverter))]
     public enum reorderLevel
@@ -13,5 +13,11 @@ namespace inventoryManagementCore.Utilities
         low,
         medium,
         critical
+    }
+    public enum notificationAction
+    {
+        Added,
+        Updated,
+        Deleted
     }
 }

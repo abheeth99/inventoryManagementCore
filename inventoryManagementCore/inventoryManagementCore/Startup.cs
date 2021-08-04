@@ -14,6 +14,8 @@ using Microsoft.Extensions.Logging;
 using inventoryManagementCore.Services.InventoryService;
 using inventoryManagementCore.Data;
 using Microsoft.EntityFrameworkCore;
+using inventoryManagementCore.Services.Firebase;
+using inventoryManagementCore.Services.Utilities;
 
 namespace inventoryManagementCore
 {
@@ -37,6 +39,10 @@ namespace inventoryManagementCore
             services.AddAutoMapper(typeof(Startup));
 
             services.AddScoped<IInventoryService, InventoryService>();
+            services.AddScoped<IInventoryLogService, InventoryLogService>();
+            services.AddScoped<IMessagingClient, MessagingClient>();
+            services.AddScoped<IUtilities, Utilities>();
+
 
             // Add service and create Policy with options
             services.AddCors(options =>

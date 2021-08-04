@@ -8,6 +8,8 @@ using inventoryManagementCore.Dtos.Inventory;
 using AutoMapper;
 using inventoryManagementCore.Data;
 using Microsoft.EntityFrameworkCore;
+using inventoryManagementCore.Services.Firebase;
+using inventoryManagementCore.Utills;
 
 namespace inventoryManagementCore.Services.InventoryService
 {
@@ -15,11 +17,15 @@ namespace inventoryManagementCore.Services.InventoryService
     {
         private readonly IMapper _mapper;
         private readonly DataContext _context;
+        private readonly IMessagingClient _messagingClient;
+        private readonly IInventoryLogService _inventoryLogService;
 
-        public InventoryService(IMapper mapper, DataContext context)
+        public InventoryService(IMapper mapper, DataContext context, IMessagingClient messagingClient, IInventoryLogService inventoryLogService)
         {
             _mapper = mapper;
             _context = context;
+            _messagingClient = messagingClient;
+            _inventoryLogService = inventoryLogService;
         }
 
         public async Task<ServiceResponse<List<GetInventoryDto>>> GetAllInventories()
@@ -45,9 +51,13 @@ namespace inventoryManagementCore.Services.InventoryService
         {
             var serviceResponse = new ServiceResponse<List<GetInventoryDto>>();
 
+
             Inventory inventory = _mapper.Map<Inventory>(newInventory);
             _context.Inventories.Add(inventory);
             await _context.SaveChangesAsync();
+
+            //Log inventory
+            await _inventoryLogService.LogInventory(inventory, notificationAction.Added);
 
             serviceResponse.Data = await _context.Inventories.Select(i => _mapper.Map<GetInventoryDto>(i)).ToListAsync();
 
@@ -68,6 +78,9 @@ namespace inventoryManagementCore.Services.InventoryService
 
                 await _context.SaveChangesAsync();
 
+                //Log inventory
+                await _inventoryLogService.LogInventory(inventory, notificationAction.Updated);
+
                 serviceResponse.Data = _mapper.Map<GetInventoryDto>(inventory);
             }
             catch(Exception ex)
@@ -84,6 +97,10 @@ namespace inventoryManagementCore.Services.InventoryService
             try
             {
                 Inventory inventory = await _context.Inventories.FirstAsync(i => i.Id == id);
+
+                //Log inventory
+                await _inventoryLogService.LogInventory(inventory, notificationAction.Deleted);
+
                 _context.Inventories.Remove(inventory);
 
                 await _context.SaveChangesAsync();

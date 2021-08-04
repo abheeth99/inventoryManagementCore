@@ -15,5 +15,7 @@ namespace inventoryManagementCore.Data
         }
 
         public DbSet<Inventory> Inventories { get; set; }
+        public DbSet<InventoryLog> InventoryLogs { get; set; }
+        public DbSet<Utility> Utilities { get; set; }
     }
 }

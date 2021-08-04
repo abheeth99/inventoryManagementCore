@@ -9,6 +9,8 @@ using inventoryManagementCore.Models;
 using inventoryManagementCore.Services.InventoryService;
 using inventoryManagementCore.Dtos.Inventory;
 using Microsoft.AspNetCore.Cors;
+using FirebaseAdmin.Messaging;
+using inventoryManagementCore.Services.Firebase;
 
 namespace inventoryManagementCore.Controllers
 {
@@ -18,9 +20,11 @@ namespace inventoryManagementCore.Controllers
     public class InventoryController : ControllerBase
     {
         private readonly IInventoryService _inventoryService;
-        public InventoryController(IInventoryService inventoryService)
+        private readonly IMessagingClient _messagingClient;
+        public InventoryController(IInventoryService inventoryService, IMessagingClient messagingClient)
         {
             _inventoryService = inventoryService;
+            _messagingClient = messagingClient;
         }
 
         [HttpGet("GetAll")]
@@ -62,5 +66,13 @@ namespace inventoryManagementCore.Controllers
             }
             return Ok(respone);
         }
+
+        [HttpPost("PushNotification")]
+        public ActionResult PushNotificationAsync(FireBaseNotification notification)
+        {
+            _messagingClient.SendNotification(notification);
+            return Ok();
+        }
+
     }
 }
